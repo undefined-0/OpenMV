@@ -1,7 +1,7 @@
 # 此py中sensor.snapshot()方法传回img（是一个数组）
 # 意图通过对数组中数据处理后进行扫描（详见文档：中期问题及解答.md）来实现任务要求。
 
-THRESHOLD = (0, 31, -9, 8, -15, 6) # Grayscale threshold for dark things...
+THRESHOLD = (32, 100, -32, 15, -25, 22) # 此阈值为白色部分
 import sensor, image, time, json
 from pyb import LED
 from pid import PID
@@ -12,13 +12,11 @@ red_led   = LED(1)
 green_led = LED(2)
 blue_led  = LED(3)
 
-LED(1).off()
-LED(2).off()
-LED(3).off()
+red_led.off()
+green_led.off()
+blue_led.off()
 
 sensor.reset()
-#sensor.set_vflip(True)
-#sensor.set_hmirror(True)
 sensor.set_pixformat(sensor.RGB565)
 sensor.set_framesize(sensor.QQQVGA) # 80x60 (4,800 pixels) - O(N^2) max = 2,3040,000.
 #sensor.set_windowing([0,20,80,40])
@@ -27,45 +25,49 @@ clock = time.clock()                # to process a frame sometimes.
 
 while(True):
     clock.tick()
-    img = sensor.snapshot().binary([THRESHOLD])
-    line = img.get_regression([(100,100)], robust = True)
-    if (line):
-        rho_err = abs(line.rho())-img.width()/2 #计算所得的直线与图像中央的偏移距离。
-        if line.theta()>90:
-            theta_err = line.theta()-180
-        else:
-            theta_err = line.theta() #进行角度转换，往右偏则角度为正值，往左偏则角度为负值
-        img.draw_line(line.line(), color =(255, 0, 0))
-        if line.magnitude()>8: #拟合效果比较好
-            rho_output = rho_pid.get_pid(rho_err,1)
-            #theta_output = theta_pid.get_pid(theta_err,1)
-            #print("偏移角度:",theta_output)
-            if rho_output>6:
-                print("-----------------")
-                print("偏移距离:",rho_output)
-                print("偏右")
-                red_led.off()
-                blue_led.on()
-                green_led.off()
-            elif rho_output<-6:
-                print("-----------------")
-                print("偏移距离:",rho_output)
-                print("偏左")
-                red_led.on()
-                blue_led.off()
-                green_led.off()
-            else:
-                print("无偏移")
-                red_led.off()
-                blue_led.off()
-                green_led.off()
-        else: #拟合效果不好
-            red_led.off()
-            blue_led.off()
-            green_led.off()
-    else: #视野中没有发现线
-        red_led.off()
-        blue_led.off()
-        green_led.on()
-        pass
+    img = sensor.snapshot().binary([THRESHOLD]) # 截取一张图片，然后对图片进行阈值分割（二值化，将阈值内所有像素设置为白色，阈值外所有像素设置为黑色）。
+    # THRESHOLD传递的值是此文件最开始设置的阈值
+    # 通过在嵌套for循环中使用image.get_pixel(x, y)方法来获取每一个像素点的值
+    # 每隔5行遍历一行
+    # 假设img是一个已经定义好的80列，60行的二维数组
+
+    # 使用嵌套for循环遍历img数组，每隔5行遍历5行
+    for start_row in range(0, 60, 10):  # 外层循环，以5为步长遍历行
+        for row in range(start_row, min(start_row + 5, 60)):  # 次外层循环，遍历接下来的5行
+            flag = 0 # 用以检测是第几次扫描到黑色像素点
+            x1_start = 0
+            x1_end = 0
+            x2_start = 0
+            x2_end = 0
+            for col in range(80):  # 最内层循环，遍历每一列
+                pixel_tuple = img.get_pixel(row, col) #将当前行列的像素值元组传给pixel_tuple
+                if pixel_tuple == (0,0,0): # 黑
+                    flag += 1
+                    if flag == 1: # 扫描到的是第一根黑色直线上的第一个黑色像素点
+                        x1_start = col # 记录下扫到的第一个黑色像素点的列值
+                        x1_end = x1_start
+                    else: # 不是第一次扫描到黑色像素点
+                        x1_start += 1 # 没扫描到白色，黑色的宽度就一直自增
+                if (pixel_tuple == (255,255,255)) & (flag != 0)&((x1_end-x1_start)>3): # 若当前白色是扫描到黑色（且黑色宽度大于3个像素）后再次扫描到的白色，而非一行刚开始时就扫描到的白色，那么就记录下x1的值
+                    x1 = (x1_start + x1_end) / 2
+                    flag = 0
+                    # continue
+
+                if pixel_tuple == (0,0,0): # 黑
+                    flag += 1
+                    if flag == 1: # 扫描到的是第二根黑色直线上的第一个黑色像素点
+                        x2_start = col # 记录下扫到的第一个黑色像素点的列值
+                        x1_end = x2_start
+                    else: # 不是第一次扫描到黑色像素点
+                        x2_start += 1 # 没扫描到白色，黑色的宽度就一直自增
+                if (pixel_tuple == (255,255,255)) & (flag != 0)&((x2_end-x2_start)>3): # 若当前白色是扫描到黑色（且黑色宽度大于3个像素）后再次扫描到的白色，而非一行刚开始时就扫描到的白色，那么就记录下x2的值
+                    x2 = (x2_start + x1_end) / 2
+
+                    # 若两根线上的黑点都已检测到，则画出该列两个黑点的中心点
+                    x_middle = (x1+x2)/2
+                    img.draw_line(int(x_middle), int(col), int(x_middle), int(col), color=(255, 0, 0), thickness=2)
+
+
+
+
     #print(clock.fps())
