@@ -1,13 +1,13 @@
-# ´ËpyÖĞsensor.snapshot()·½·¨´«»Øimg£¨ÊÇÒ»¸öÊı×é£©
-# ÒâÍ¼Í¨¹ı¶ÔÊı×éÖĞÊı¾İ´¦Àíºó½øĞĞÉ¨Ãè£¨Ïê¼ûÎÄµµ£ºÖĞÆÚÎÊÌâ¼°½â´ğ.md£©À´ÊµÏÖÈÎÎñÒªÇó¡£
-# ÔÚv5µÄ»ù´¡ÉÏĞÂÔö&ĞŞ¸Ä£¬Ï£ÍûÄÜ¹»ÊµÏÖÓÉ¶¨Ê±Æ÷¿ØÖÆLEDµÆÉÁË¸
+# æ­¤pyä¸­sensor.snapshot()æ–¹æ³•ä¼ å›imgï¼ˆæ˜¯ä¸€ä¸ªæ•°ç»„ï¼‰
+# æ„å›¾é€šè¿‡å¯¹æ•°ç»„ä¸­æ•°æ®å¤„ç†åè¿›è¡Œæ‰«æï¼ˆè¯¦è§æ–‡æ¡£ï¼šä¸­æœŸé—®é¢˜åŠè§£ç­”.mdï¼‰æ¥å®ç°ä»»åŠ¡è¦æ±‚ã€‚
+# åœ¨v5çš„åŸºç¡€ä¸Šæ–°å¢&ä¿®æ”¹ï¼Œå¸Œæœ›èƒ½å¤Ÿå®ç°ç”±å®šæ—¶å™¨æ§åˆ¶LEDç¯é—ªçƒ
 
-THRESHOLD = (50,255) # ´ËãĞÖµÎª°×É«²¿·Ö
+THRESHOLD = (50,255) # æ­¤é˜ˆå€¼ä¸ºç™½è‰²éƒ¨åˆ†
 import sensor, image, time, json
-from pyb import LED
-from pid import PID
-rho_pid = PID(p=0.4, i=0)
-theta_pid = PID(p=0.001, i=0)
+from pyb import Pin, Timer,LED
+# from pid import PID
+# rho_pid = PID(p=0.4, i=0)
+# theta_pid = PID(p=0.001, i=0)
 
 red_led   = LED(1)
 green_led = LED(2)
@@ -16,6 +16,15 @@ blue_led  = LED(3)
 red_led.off()
 green_led.off()
 blue_led.off()
+
+def blue_LED_flash(timer):            
+    blue_led.toggle()
+
+def red_LED_flash(timer):            
+    red_led.toggle()
+
+tim_blue = Timer(3, freq=4)      # ä½¿ç”¨å®šæ—¶å™¨3åˆ›å»ºå®šæ—¶å™¨å¯¹è±¡â€”ä»¥4Hzè§¦å‘
+tim_red = Timer(2, freq=4)      # ä½¿ç”¨å®šæ—¶å™¨2åˆ›å»ºå®šæ—¶å™¨å¯¹è±¡â€”ä»¥4Hzè§¦å‘
 
 sensor.reset()
 sensor.set_pixformat(sensor.GRAYSCALE)
@@ -26,17 +35,17 @@ clock = time.clock()                # to process a frame sometimes.
 
 while(True):
     clock.tick()
-    # img = sensor.snapshot().lens_corr(strength = 1.8, zoom = 1.0) # »û±ä½ÃÕı
-    img = sensor.snapshot().binary([THRESHOLD]) # ½ØÈ¡Ò»ÕÅÍ¼Æ¬£¬È»ºó¶ÔÍ¼Æ¬½øĞĞãĞÖµ·Ö¸î£¨¶şÖµ»¯£¬½«ãĞÖµÄÚËùÓĞÏñËØÉèÖÃÎª°×É«£¬ãĞÖµÍâËùÓĞÏñËØÉèÖÃÎªºÚÉ«£©¡£
-    # THRESHOLD´«µİµÄÖµÊÇ´ËÎÄ¼ş×î¿ªÊ¼ÉèÖÃµÄãĞÖµ
-    # Í¨¹ıÔÚÇ¶Ì×forÑ­»·ÖĞÊ¹ÓÃimage.get_pixel(x, y)·½·¨À´»ñÈ¡Ã¿Ò»¸öÏñËØµãµÄÖµ
-    # Ã¿¸ô5ĞĞ±éÀú5ĞĞ
+    # img = sensor.snapshot().lens_corr(strength = 1.8, zoom = 1.0) # ç•¸å˜çŸ«æ­£
+    img = sensor.snapshot().binary([THRESHOLD]) # æˆªå–ä¸€å¼ å›¾ç‰‡ï¼Œç„¶åå¯¹å›¾ç‰‡è¿›è¡Œé˜ˆå€¼åˆ†å‰²ï¼ˆäºŒå€¼åŒ–ï¼Œå°†é˜ˆå€¼å†…æ‰€æœ‰åƒç´ è®¾ç½®ä¸ºç™½è‰²ï¼Œé˜ˆå€¼å¤–æ‰€æœ‰åƒç´ è®¾ç½®ä¸ºé»‘è‰²ï¼‰ã€‚
+    # THRESHOLDä¼ é€’çš„å€¼æ˜¯æ­¤æ–‡ä»¶æœ€å¼€å§‹è®¾ç½®çš„é˜ˆå€¼
+    # é€šè¿‡åœ¨åµŒå¥—forå¾ªç¯ä¸­ä½¿ç”¨image.get_pixel(x, y)æ–¹æ³•æ¥è·å–æ¯ä¸€ä¸ªåƒç´ ç‚¹çš„å€¼
+    # æ¯éš”5è¡Œéå†5è¡Œ
     #for aver_x in range()
-    total_points = 0.01 # ³õÖµÉèÎª0.01¶ø·Ç0£¬·ÀÖ¹ÔÚ¸ÕÆô¶¯£¨Î´¼ì²âµ½µÀÂ·±ßÔµÏß£©Ê±³öÏÖ³ıÊıÎª0µÄÇé¿ö
+    total_points = 0.01 # åˆå€¼è®¾ä¸º0.01è€Œé0ï¼Œé˜²æ­¢åœ¨åˆšå¯åŠ¨ï¼ˆæœªæ£€æµ‹åˆ°é“è·¯è¾¹ç¼˜çº¿ï¼‰æ—¶å‡ºç°é™¤æ•°ä¸º0çš„æƒ…å†µ
     x_sum = 0
-    for start_row in range(0, 60, 10):  # Íâ²ãÑ­»·£¬ÒÔ10Îª²½³¤±éÀúĞĞ
-        for row in range(start_row, min(start_row + 5, 60)):  # ´ÎÍâ²ãÑ­»·£¬±éÀú½ÓÏÂÀ´µÄ5ĞĞ
-            for col_1 in range(80):  # ×îÄÚ²ãÑ­»·£¬±éÀúÃ¿Ò»ÁĞ
+    for start_row in range(0, 60, 10):  # å¤–å±‚å¾ªç¯ï¼Œä»¥10ä¸ºæ­¥é•¿éå†è¡Œ
+        for row in range(start_row, min(start_row + 5, 60)):  # æ¬¡å¤–å±‚å¾ªç¯ï¼Œéå†æ¥ä¸‹æ¥çš„5è¡Œ
+            for col_1 in range(80):  # æœ€å†…å±‚å¾ªç¯ï¼Œéå†æ¯ä¸€åˆ—
                 if (img.get_pixel(col_1-1,row) == 255) & \
                 (img.get_pixel(col_1,row) == 255) & \
                 (img.get_pixel(col_1+1,row) == 255) & \
@@ -54,21 +63,27 @@ while(True):
                             x2 = col_2+3
                             x = (x1+x2)/2
                             x_sum += x
-                            total_points += 1 # ´Ë±äÁ¿º¬Òå£º¹²µÃµ½ÁËÖĞĞÄÏßÉÏµÄ¶àÉÙµã¡£´Ë±äÁ¿½«ÔÚÆ«ÒÆ¼ì²âÖĞ£¨¼ÆËãÖĞĞÄÏßÆ½¾ùºá×ø±êÊ±£©±»Ê¹ÓÃ¡£
+                            total_points += 1 # æ­¤å˜é‡å«ä¹‰ï¼šå…±å¾—åˆ°äº†ä¸­å¿ƒçº¿ä¸Šçš„å¤šå°‘ç‚¹ã€‚æ­¤å˜é‡å°†åœ¨åç§»æ£€æµ‹ä¸­ï¼ˆè®¡ç®—ä¸­å¿ƒçº¿å¹³å‡æ¨ªåæ ‡æ—¶ï¼‰è¢«ä½¿ç”¨ã€‚
                             img.set_pixel(round(x),row,(255,0,0))
-    if((x_sum/total_points)>45): # ÖĞĞÄÏßÔÚÍ¼ÏñÖĞÆ«ÓÒ
-        # À¶µÆÉÁË¸
+    if((x_sum/total_points)>50): # ä¸­å¿ƒçº¿åœ¨å›¾åƒä¸­åå³
+        # è“ç¯é—ªçƒ
+        tim_red.callback(None)
+        tim_blue.callback(blue_LED_flash)          # å°†å›è°ƒè®¾ç½®ä¸ºblue_LED_flashå‡½æ•°
         red_led.off()
         green_led.off()
-        blue_led.on()
-    elif((x_sum/total_points)<35): # ÖĞĞÄÏßÔÚÍ¼ÏñÖĞÆ«×ó
-        # ºìµÆÉÁË¸
-        red_led.on()
+        # blue_led.on()
+    elif((x_sum/total_points)<30): # ä¸­å¿ƒçº¿åœ¨å›¾åƒä¸­åå·¦
+        # çº¢ç¯é—ªçƒ
+        tim_blue.callback(None)
+        tim_red.callback(red_LED_flash)          # å°†å›è°ƒè®¾ç½®ä¸ºred_LED_flashå‡½æ•°
+        # red_led.on()
         green_led.off()
         blue_led.off()
-    else: # ²»Æ«×óÒ²²»Æ«ÓÒ
-        # µÆÏ¨Ãğ
-        red_led.off()
+    else: # ä¸åå·¦ä¹Ÿä¸åå³
+        # çº¢ç¯å¸¸äº®
+        tim_red.callback(None)
+        tim_blue.callback(None)
+        red_led.on()
         green_led.off()
         blue_led.off()
 
