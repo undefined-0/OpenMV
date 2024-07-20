@@ -26,10 +26,14 @@ clock = time.clock()                # to process a frame sometimes.
 
 while(True):
     clock.tick()
+    # img = sensor.snapshot().lens_corr(strength = 1.8, zoom = 1.0) # 畸变矫正
     img = sensor.snapshot().binary([THRESHOLD]) # 截取一张图片，然后对图片进行阈值分割（二值化，将阈值内所有像素设置为白色，阈值外所有像素设置为黑色）。
     # THRESHOLD传递的值是此文件最开始设置的阈值
     # 通过在嵌套for循环中使用image.get_pixel(x, y)方法来获取每一个像素点的值
     # 每隔5行遍历5行
+    #for aver_x in range()
+    total_points = 0.01 # 初值设为0.01而非0，防止在刚启动（未检测到道路边缘线）时出现除数为0的情况
+    x_sum = 0
     for start_row in range(0, 60, 10):  # 外层循环，以10为步长遍历行
         for row in range(start_row, min(start_row + 5, 60)):  # 次外层循环，遍历接下来的5行
             for col_1 in range(80):  # 最内层循环，遍历每一列
@@ -48,5 +52,24 @@ while(True):
                         (img.get_pixel(col_2+3,row) == 0) & \
                         (img.get_pixel(col_2+4,row) == 0) :
                             x2 = col_2+3
-                            img.set_pixel(round((x1+x2)/2),row,(255,0,0))
+                            x = (x1+x2)/2
+                            x_sum += x
+                            total_points += 1 # 此变量含义：共得到了中心线上的多少点。此变量将在偏移检测中（计算中心线平均横坐标时）被使用。
+                            img.set_pixel(round(x),row,(255,0,0))
+    if((x_sum/total_points)>45): # 中心线在图像中偏右
+        # 蓝灯闪烁
+        red_led.off()
+        green_led.off()
+        blue_led.on()
+    elif((x_sum/total_points)<35): # 中心线在图像中偏左
+        # 红灯闪烁
+        red_led.on()
+        green_led.off()
+        blue_led.off()
+    else: # 不偏左也不偏右
+        # 灯熄灭
+        red_led.off()
+        green_led.off()
+        blue_led.off()
+
      #print(clock.fps())
