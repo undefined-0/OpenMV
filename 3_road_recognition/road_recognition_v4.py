@@ -1,8 +1,8 @@
-# ´ËpyÖÐsensor.snapshot()·½·¨´«»Øimg£¨ÊÇÒ»¸öÊý×é£©
-# ÒâÍ¼Í¨¹ý¶ÔÊý×éÖÐÊý¾Ý´¦Àíºó½øÐÐÉ¨Ãè£¨Ïê¼ûÎÄµµ£ºÖÐÆÚÎÊÌâ¼°½â´ð.md£©À´ÊµÏÖÈÎÎñÒªÇó¡£
-# »ùÓÚv3¸ü¸ÄÎªÁË¸üÎª¼òµ¥µÄËã·¨
+# æ­¤pyä¸­sensor.snapshot()æ–¹æ³•ä¼ å›žimgï¼ˆæ˜¯ä¸€ä¸ªæ•°ç»„ï¼‰
+# æ„å›¾é€šè¿‡å¯¹æ•°ç»„ä¸­æ•°æ®å¤„ç†åŽè¿›è¡Œæ‰«æï¼ˆè¯¦è§æ–‡æ¡£ï¼šä¸­æœŸé—®é¢˜åŠè§£ç­”.mdï¼‰æ¥å®žçŽ°ä»»åŠ¡è¦æ±‚ã€‚
+# åŸºäºŽv3æ›´æ”¹ä¸ºäº†æ›´ä¸ºç®€å•çš„ç®—æ³•
 
-THRESHOLD = (50,255) # ´ËãÐÖµÎª°×É«²¿·Ö
+THRESHOLD = (50,255) # æ­¤é˜ˆå€¼ä¸ºç™½è‰²éƒ¨åˆ†
 import sensor, image, time, json
 from pyb import LED
 from pid import PID
@@ -26,13 +26,13 @@ clock = time.clock()                # to process a frame sometimes.
 
 while(True):
     clock.tick()
-    img = sensor.snapshot().binary([THRESHOLD]) # ½ØÈ¡Ò»ÕÅÍ¼Æ¬£¬È»ºó¶ÔÍ¼Æ¬½øÐÐãÐÖµ·Ö¸î£¨¶þÖµ»¯£¬½«ãÐÖµÄÚËùÓÐÏñËØÉèÖÃÎª°×É«£¬ãÐÖµÍâËùÓÐÏñËØÉèÖÃÎªºÚÉ«£©¡£
-    # THRESHOLD´«µÝµÄÖµÊÇ´ËÎÄ¼þ×î¿ªÊ¼ÉèÖÃµÄãÐÖµ
-    # Í¨¹ýÔÚÇ¶Ì×forÑ­»·ÖÐÊ¹ÓÃimage.get_pixel(x, y)·½·¨À´»ñÈ¡Ã¿Ò»¸öÏñËØµãµÄÖµ
-    # Ã¿¸ô5ÐÐ±éÀú5ÐÐ
-    for start_row in range(0, 60, 10):  # Íâ²ãÑ­»·£¬ÒÔ10Îª²½³¤±éÀúÐÐ
-        for row in range(start_row, min(start_row + 5, 60)):  # ´ÎÍâ²ãÑ­»·£¬±éÀú½ÓÏÂÀ´µÄ5ÐÐ
-            for col_1 in range(80):  # ×îÄÚ²ãÑ­»·£¬±éÀúÃ¿Ò»ÁÐ
+    img = sensor.snapshot().binary([THRESHOLD]) # æˆªå–ä¸€å¼ å›¾ç‰‡ï¼Œç„¶åŽå¯¹å›¾ç‰‡è¿›è¡Œé˜ˆå€¼åˆ†å‰²ï¼ˆäºŒå€¼åŒ–ï¼Œå°†é˜ˆå€¼å†…æ‰€æœ‰åƒç´ è®¾ç½®ä¸ºç™½è‰²ï¼Œé˜ˆå€¼å¤–æ‰€æœ‰åƒç´ è®¾ç½®ä¸ºé»‘è‰²ï¼‰ã€‚
+    # THRESHOLDä¼ é€’çš„å€¼æ˜¯æ­¤æ–‡ä»¶æœ€å¼€å§‹è®¾ç½®çš„é˜ˆå€¼
+    # é€šè¿‡åœ¨åµŒå¥—forå¾ªçŽ¯ä¸­ä½¿ç”¨image.get_pixel(x, y)æ–¹æ³•æ¥èŽ·å–æ¯ä¸€ä¸ªåƒç´ ç‚¹çš„å€¼
+    # æ¯éš”5è¡ŒéåŽ†5è¡Œ
+    for start_row in range(0, 60, 10):  # å¤–å±‚å¾ªçŽ¯ï¼Œä»¥10ä¸ºæ­¥é•¿éåŽ†è¡Œ
+        for row in range(start_row, min(start_row + 5, 60)):  # æ¬¡å¤–å±‚å¾ªçŽ¯ï¼ŒéåŽ†æŽ¥ä¸‹æ¥çš„5è¡Œ
+            for col_1 in range(80):  # æœ€å†…å±‚å¾ªçŽ¯ï¼ŒéåŽ†æ¯ä¸€åˆ—
                 if (img.get_pixel(col_1-1,row) == 255) & \
                 (img.get_pixel(col_1,row) == 255) & \
                 (img.get_pixel(col_1+1,row) == 255) & \
