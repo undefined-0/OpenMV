@@ -10,15 +10,15 @@ while(True):
     # P7连接的舵机
     for i in range(2000):
         s1.pulse_width(500 + i) # 500~2500
-        time.sleep_ms(5)
+        time.sleep_ms(2)
     for i in range(2000):
         s1.pulse_width(2499 - i) # 2499~499
-        time.sleep_ms(5)
+        time.sleep_ms(2)
 
     # P8连接的舵机
     for i in range(2000):
         s2.pulse_width(500 + i) # 500~2500
-        time.sleep_ms(5)
+        time.sleep_ms(2)
     for i in range(2000):
         s2.pulse_width(2499 - i) # 2499~499
-        time.sleep_ms(5)
+        time.sleep_ms(2)

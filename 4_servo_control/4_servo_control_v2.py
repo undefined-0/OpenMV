@@ -11,9 +11,8 @@ move_time = 1000 # 1000ms
 while(True):
     # P7连接的舵机
     s1.angle(90, move_time)
-    time.sleep(10)
+    time.sleep(2)
     s1.angle(-90, move_time)
-    time.sleep(10)
+    time.sleep(2)
 
     # P8连接的舵机
-
