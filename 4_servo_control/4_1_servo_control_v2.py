@@ -16,3 +16,7 @@ while(True):
     time.sleep(2)
 
     # P8连接的舵机
+    s2.angle(90, move_time)
+    time.sleep(2)
+    s2.angle(-90, move_time)
+    time.sleep(2)
